@@ -86,7 +86,7 @@ def commander(com):
         com[0] = sys.executable + " -m pydoc"
         return " ".join(com)
     else:
-        return com
+        return " ".join(com)
 
 
 while True:
