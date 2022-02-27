@@ -75,13 +75,15 @@ def output_cmd():
 
 
 def commander(com):
-    if (com[0:6] == "python"):  # python
-        com = com.split()
+    com = com.split()
+    if (com[0] == "python"):  # python
         com[0] = sys.executable
         return " ".join(com)
-    elif (com[0:3] == "pip"):  # pip
-        com = com.split()
+    elif (com[0] == "pip"):  # pip
         com[0] = sys.executable + " -m pip"
+        return " ".join(com)
+    elif (com[0] == "pydoc"):  # pydoc
+        com[0] = sys.executable + " -m pydoc"
         return " ".join(com)
     else:
         return com
