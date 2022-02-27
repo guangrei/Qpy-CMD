@@ -109,7 +109,7 @@ while True:
     # limit interactive shell programs
     elif (i in ["python", "sh", "ipython", "bash", "python3", "python2"]):
         print("don't run interactive shell programs here, please type: \"cmd2\" to open native terminal!")
-    elif(i.split()[0] in ["vim", "vi", "nano", "cat", "echo", "ssh"]):  # block unsupported programs
+    elif(i.split()[0] in ["vim", "vi", "nano", "cat", "echo", "ssh", "clear"]):  # block unsupported programs
         print(
             i.split()[0] +
             " isn't compatible here, please type: \"cmd2\" to open native terminal!")
