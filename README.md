@@ -16,16 +16,15 @@ special input:
 
 ## Extend
 
-you extend  `cmd.py`  and add your own command, e.g:  `mycmd.py` 
+you can extend  `cmd.py`  and add your own command, e.g:  `mycmd.py` 
 ```python
 from cmd import QPyCMD
 
-def bar(cmd):
-    print("[<]: "+cmd[0]+" bar")
-    return False
+def bar(argv):
+    print("[<]: "+argv[0]+" bar")
 q = QPyCMD()
-q.setCom("foo",bar)
-q.mainLoop()
+q.set_command("foo",bar)
+q.mainloop()
 ```
 
 ## Limitation

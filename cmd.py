@@ -45,13 +45,13 @@ class QPyCMD(object):
         self.commander = {}
         self.droid = sl4a.Android()
 
-    def setCom(self, fun_name, fun):
+    def set_command(self, fun_name, fun):
         if callable(fun):
             self.commander[fun_name] = fun
         else:
             raise Exception(type(fun) + " isn't callable")
 
-    def check_update(self):
+    def __check_update(self):
         print("[<]: checking for update")
         try:
             import requests
@@ -67,8 +67,8 @@ class QPyCMD(object):
             print("failed to checks update!")
             return False
 
-    def update(self, cmd):
-        if(self.check_update()):
+    def __update(self, cmd):
+        if(self.__check_update()):
             print("updating..")
             path = os.path.dirname(sys.argv[0]) + "/cmd.py"
             try:
@@ -91,9 +91,9 @@ class QPyCMD(object):
 
     def __shell(self, txcmd):
         cmd = shlex.split(txcmd)
-        if txcmd == "":
+        if txcmd.strip() == "":
             return False
-        elif (txcmd in ["python", "sh", "ipython", "bash", "python3", "python2"]):
+        elif (txcmd.strip() in ["python", "sh", "ipython", "bash", "python3", "python2"]):
             print(
                 "don't run interactive shell programs here, please type: \"cmd2\" to open native terminal!")
             return False
@@ -129,12 +129,16 @@ class QPyCMD(object):
         return " ".join(cmd)
 
     def __urlencode(self, cmd):
-        print("[<]: " + parse.quote_plus(cmd[1]))
-        return False
+        try:
+            print("[<]: " + parse.quote_plus(cmd[1]))
+        except IndexError:
+            print("Usage: urlencode string")
 
     def __urldecode(self, cmd):
-        print("[<]: " + parse.unquote(cmd[1]))
-        return False
+        try:
+            print("[<]: " + parse.unquote(cmd[1]))
+        except IndexError:
+            print("Usage: urldecode string")
 
     def __help(self, cmd):
         print("QPy CMD " + self.__version__ + "by guangrei.")
@@ -156,30 +160,30 @@ class QPyCMD(object):
         u = self.droid.dialogGetInput('Qpy CMD', "Input command:").result
         if u is not None:
             print("[>]: " + u.strip())
-            return u.strip()
+            return self.__shell(u)
         else:
             return False
 
-    def mainLoop(self):
+    def mainloop(self):
         print(
             'Welcome to QPy CMD ' +
             self.__version__ +
             ' by guangrei, type "exit" to close this program and "?" for help!')
-        self.setCom("update", self.update)
-        self.setCom("python", self.__python)
-        self.setCom("pip", self.__pip)
-        self.setCom("pydoc", self.__pydoc)
-        self.setCom("cmd2", self.__cmd2)
-        self.setCom("exit", self.__quit)
-        self.setCom("x", self.__input)
-        self.setCom("urlencode", self.__urlencode)
-        self.setCom("urldecode", self.__urldecode)
-        self.setCom("?", self.__help)
+        self.set_command("update", self.__update)
+        self.set_command("python", self.__python)
+        self.set_command("pip", self.__pip)
+        self.set_command("pydoc", self.__pydoc)
+        self.set_command("cmd2", self.__cmd2)
+        self.set_command("exit", self.__quit)
+        self.set_command("x", self.__input)
+        self.set_command("urlencode", self.__urlencode)
+        self.set_command("urldecode", self.__urldecode)
+        self.set_command("?", self.__help)
         while True:
             try:
                 i = input("[>]: ")
                 i = self.__shell(i)
-                if i != False:
+                if isinstance(i, str):
                     self.__cmdIn(i)
             except KeyboardInterrupt:
                 print('please type "exit" for quit!')
@@ -187,4 +191,4 @@ class QPyCMD(object):
 
 if __name__ == "__main__":
     q = QPyCMD()
-    q.mainLoop()
+    q.mainloop()
