@@ -23,120 +23,168 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 from subprocess import Popen, PIPE
-import time
-import os
+import androidhelper as sl4a
 import sys
-
-try:
-    import sl4a
-except ImportError:
-    import androidhelper as sl4a
-
-print('Welcome to Qpython CMD v1.0, type "exit" to close this program and "?" for help!')
-
-droid = sl4a.Android()
-process = Popen(
-    ['sh'],
-    shell=True,
-    stdin=PIPE,
-    stdout=PIPE,
-    universal_newlines=True,
-    bufsize=0)
-process.stdin.write('cd /sdcard/qpython/\n')
-process.stdin.flush()
+import os
+import shlex
+from urllib import parse
 
 
-def dialog_input():
-    u = droid.dialogGetInput('Qpy CMD', "Input command:").result
-    if u is not None:
-        return u.strip()
-    else:
-        return ""
+class QPyCMD(object):
+    def __init__(self):
+        self.__version__ = "v1.0"
+        self.process = Popen(
+            ['sh'],
+            shell=True,
+            stdin=PIPE,
+            stdout=PIPE,
+            universal_newlines=True,
+            bufsize=0)
+        self.process.stdin.write('cd /sdcard/qpython/\n')
+        self.process.stdin.flush()
+        self.commander = {}
+        self.droid = sl4a.Android()
 
-
-def dialog_page(uri, title, msg):
-    title = title
-    message = (msg)
-    droid.dialogCreateAlert(title, message)
-    droid.dialogSetPositiveButtonText('Yes')
-    droid.dialogSetNegativeButtonText('No')
-    droid.dialogShow()
-    response = droid.dialogGetResponse().result
-    if (response['which'] == 'positive'):
-        droid.view(uri)
-
-
-def output_cmd():
-    for out in process.stdout:
-        if out != "<#eol#>\n":
-            print("[<]:", out.strip())
+    def setCom(self, fun_name, fun):
+        if callable(fun):
+            self.commander[fun_name] = fun
         else:
-            break
+            raise Exception(type(fun) + " isn't callable")
 
+    def check_update(self):
+        print("[<]: checking for update")
+        try:
+            import requests
+            tx = requests.get(
+                "https://raw.githubusercontent.com/guangrei/Qpy-CMD/main/version.txt",
+                verify=False).text
+            if tx != self.__version__:
+                return True
+            else:
+                print("you already use version " + tx)
+                return False
+        except BaseException:
+            print("failed to checks update!")
+            return False
 
-def commander(com):
-    com = com.split()
-    if (com[0] == "python"):  # python
-        com[0] = sys.executable
-        return " ".join(com)
-    elif (com[0] == "pip"):  # pip
+    def update(self, cmd):
+        if(self.check_update()):
+            print("updating..")
+            path = os.path.dirname(sys.argv[0]) + "/cmd.py"
+            try:
+                import requests
+                tx = requests.get(
+                    "https://raw.githubusercontent.com/guangrei/Qpy-CMD/main/cmd.py").text
+                with open(path, "w") as f:
+                    f.write(tx)
+                    f.close()
+                    print("update completed! please re-run " + path)
+            except BaseException:
+                print("update failed!")
+        return False
+
+    def __cmd2(self, cmd):
+        print("###\nWelcome to second Qpy CMD, this is just native terminal! type \"exit\" for back to QPy CMD.\npython bin: " +
+              sys.executable.split("/")[-1] + "\n###")
+        os.system("sh")
+        return False
+
+    def __shell(self, txcmd):
+        cmd = shlex.split(txcmd)
+        if txcmd == "":
+            return False
+        elif (txcmd in ["python", "sh", "ipython", "bash", "python3", "python2"]):
+            print(
+                "don't run interactive shell programs here, please type: \"cmd2\" to open native terminal!")
+            return False
+        elif (cmd[0] in ["vim", "vi", "nano", "cat", "echo", "ssh"]):
+            print(
+                cmd[0] +
+                " isn't compatible here, please type: \"cmd2\" to open native terminal!")
+            return False
+        elif ("&&" in cmd):
+            print(
+                "command && isn't compatible here, please type: \"cmd2\" to open native terminal!")
+            return False
+        elif cmd[0] in self.commander:
+            return self.commander[cmd[0]](cmd)
+        else:
+            return txcmd
+
+    def __cmdIn(self, com):
+        txcmd = 'cmd="' + com + '"; $cmd; echo "<#eol#>"\n'
+        self.process.stdin.write(txcmd)
+        self.process.stdin.flush()
+        self.__cmdOut()
+
+    def __cmdOut(self):
+        for out in self.process.stdout:
+            if out != "<#eol#>\n":
+                print("[<]:", out.strip())
+            else:
+                break
+
+    def __python(self, cmd):
+        cmd[0] = sys.executable
+        return " ".join(cmd)
+
+    def __urlencode(self, cmd):
+        print("[<]: " + parse.quote_plus(cmd[1]))
+        return False
+
+    def __urldecode(self, cmd):
+        print("[<]: " + parse.unquote(cmd[1]))
+        return False
+
+    def __help(self, cmd):
+        print("QPy CMD " + self.__version__ + "by guangrei.")
+        print("For more info and support please open https://github.com/guangrei/Qpy-CMD")
+        return False
+
+    def __pip(self, com):
         com[0] = sys.executable + " -m pip"
         return " ".join(com)
-    elif (com[0] == "pydoc"):  # pydoc
+
+    def __pydoc(self, com):
         com[0] = sys.executable + " -m pydoc"
         return " ".join(com)
-    else:
-        return " ".join(com)
 
-
-while True:
-    i = input("[>]: ")
-    i = i.replace("$QPD", "/sdcard/qpython/")  # shortcut for qpython dir
-    i = i.replace("$QPS", sys.prefix)  # shortcut for qpypthon sys dir
-    if (i == ""):  # handle empty input
-        process.stdin.write('echo "<#eol#>"\n')
-        process.stdin.flush()
-    elif (i == "exit"):  # exit
+    def __quit(self, cmd):
         os._exit(0)
-    elif (i == "cmd2"):  # cmd2
-        break
-    elif (i == "?"):  # help
-        print("For more info and support please open https://github.com/guangrei/Qpy-CMD")
-        dialog_page(
-            "https://github.com/guangrei/Qpy-CMD",
-            "Qpy CMD",
-            "do you want to open page https://github.com/guangrei/Qpy-CMD ?")
-    # limit interactive shell programs
-    elif (i in ["python", "sh", "ipython", "bash", "python3", "python2"]):
-        print("don't run interactive shell programs here, please type: \"cmd2\" to open native terminal!")
-    # block unsupported programs
-    elif(i.split()[0] in ["vim", "vi", "nano", "cat", "echo", "ssh", "clear"]):
+
+    def __input(self, cmd):
+        u = self.droid.dialogGetInput('Qpy CMD', "Input command:").result
+        if u is not None:
+            print("[>]: " + u.strip())
+            return u.strip()
+        else:
+            return False
+
+    def mainLoop(self):
         print(
-            i.split()[0] +
-            " isn't compatible here, please type: \"cmd2\" to open native terminal!")
-    elif ("&&" in i.split()):
-        print("command && isn't compatible here, please type: \"cmd2\" to open native terminal!")
-    elif(i == "x" or i == "X"):
-        i = dialog_input()
-        i = commander(i)
-        txcmd = 'cmd="' + i + '"; $cmd; echo "<#eol#>"\n'
-        process.stdin.write(txcmd)
-        process.stdin.flush()
-        output_cmd()
-    else:
-        i = commander(i)
-        txcmd = 'cmd="' + i + '"; $cmd; echo "<#eol#>"\n'
-        process.stdin.write(txcmd)
-        process.stdin.flush()
-        output_cmd()
+            'Welcome to QPy CMD ' +
+            self.__version__ +
+            ' by guangrei, type "exit" to close this program and "?" for help!')
+        self.setCom("update", self.update)
+        self.setCom("python", self.__python)
+        self.setCom("pip", self.__pip)
+        self.setCom("pydoc", self.__pydoc)
+        self.setCom("cmd2", self.__cmd2)
+        self.setCom("exit", self.__quit)
+        self.setCom("x", self.__input)
+        self.setCom("urlencode", self.__urlencode)
+        self.setCom("urldecode", self.__urldecode)
+        self.setCom("?", self.__help)
+        while True:
+            try:
+                i = input("[>]: ")
+                i = self.__shell(i)
+                if i != False:
+                    self.__cmdIn(i)
+            except KeyboardInterrupt:
+                print('please type "exit" for quit!')
 
-process.stdin.close()
-process.wait()
 
-
-# second Qpy CMD, this program can be launched with type: cmd2
-
-print("------------------------------\nWelcome to second Qpy CMD, this is just native terminal!\npython bin: " +
-      sys.executable.split("/")[-1] + "\n----------------------------")
-
-os.system("sh")
+if __name__ == "__main__":
+    q = QPyCMD()
+    q.mainLoop()
