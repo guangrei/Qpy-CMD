@@ -141,7 +141,7 @@ class QPyCMD(object):
             print("Usage: urldecode string")
 
     def __help(self, cmd):
-        print("QPy CMD " + self.__version__ + "by guangrei.")
+        print("QPy CMD " + self.__version__ + " by guangrei.")
         print("For more info and support please open https://github.com/guangrei/Qpy-CMD")
         return False
 
