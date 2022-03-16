@@ -5,28 +5,16 @@ Qpy CMD is terminal helper for qpython user to run terminal operation like:
 - run basic command ( `ls` ,  `mkdir` ,  `cd`  etc)
 - auto  `cd`  to  `/sdcard/qpython` when launched.
 
-special input:
- -  `x` : prompt gui input.
- -  `cmd2`: native terminal launcher.
- -  `?`: show help.
- -  `exit`: terminate program.
- -  `update`: self-update program.
+built-in commands:
+ -  `x`                         :  prompt gui input.
+ -  `?`                         :  show help.
+ -  `exit`                     :  terminate program.
+ -  `update`               :  self-update program.
+ -  `ext`                      :  extension command.
+ -  `dump_path`        : dump all available executable.
 
 ![Screenshot](screenshot.jpg)
 
-## Extend
+## Extension
 
-you can extend  `cmd.py`  and add your own command, e.g:  `mycmd.py` 
-```python
-from cmd import QPyCMD
-
-def bar(argv):
-    print("[<]: "+argv[0]+" bar")
-q = QPyCMD()
-q.set_command("foo",bar)
-q.mainloop()
-```
-
-## Limitation
-
-currently Qpy CMD not compatible with interactive shell programs and some commands like `echo` ,  `cat` ,  `&&`  doesn't work properly, so you can switch to native terminal by type: `cmd2`.
+For extension list, please visit https://github.com/guangrei/QPy-EXT
