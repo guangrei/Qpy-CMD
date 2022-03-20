@@ -314,7 +314,7 @@ class QPyCMD(object):
             if rs != self.__version__:
                 return True
             else:
-                print("you already use version " + tx)
+                print("you already use version " + rs)
                 return False
         else:
             print("failed to checks update!")
