@@ -148,20 +148,22 @@ class Extension(object):
         no_update = True
         for i in ls:
             with open(self.__path+i+"/.version", "r") as f:
-              local = f.read()
-            remote =  get_contents(pref+i+"/.version")
-            print("Checking %s ... "%i, end="")
+                local = f.read()
+            remote = get_contents(pref+i+"/.version")
+            print("Checking %s ... " % i, end="")
             if remote != False:
-              if local != remote:
-                  print("done!")
-                  print("---")
-                  print("Update {0} version {1} available!".format(i, remote))
-                  print("Please upgrade with command: ext upgrade {0}".format(i))
-                  print("---")
-                  no_update = False
-              else:
-                  print("done!")
-                  
+                if local != remote:
+                    print("done!")
+                    print("---")
+                    print(
+                        "Update {0} version {1} available!".format(i, remote))
+                    print(
+                        "Please upgrade with command: ext upgrade {0}".format(i))
+                    print("---")
+                    no_update = False
+                else:
+                    print("done!")
+
             else:
                 print("failed!")
         if len(ls) == 0:
