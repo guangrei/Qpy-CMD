@@ -23,7 +23,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 from subprocess import Popen, PIPE
-import androidhelper as sl4a
 import time
 import sys
 import os
@@ -52,7 +51,7 @@ def get_contents(url):
 
 class Extension(object):
     def __init__(self):
-        path = os.path.dirname(sys.argv[0]) + "/.ext/"
+        path = os.path.abspath(os.path.dirname(sys.argv[0])) + "/.ext/"
         if not os.path.isdir(path):
             os.mkdir(path)
         self.__path = path
@@ -143,6 +142,34 @@ class Extension(object):
         except KeyError:
             return False
 
+    def __update_check(self):
+        ls = os.listdir(self.__path)
+        pref = "https://raw.githubusercontent.com/guangrei/Qpy-EXT/main/pkg/"
+        no_update = True
+        for i in ls:
+            with open(self.__path+i+"/.version", "r") as f:
+              local = f.read()
+            remote =  get_contents(pref+i+"/.version")
+            print("Checking %s ... "%i, end="")
+            if remote != False:
+              if local != remote:
+                  print("done!")
+                  print("---")
+                  print("Update {0} version {1} available!".format(i, remote))
+                  print("Please upgrade with command: ext upgrade {0}".format(i))
+                  print("---")
+                  no_update = False
+              else:
+                  print("done!")
+                  
+            else:
+                print("failed!")
+        if len(ls) == 0:
+            print("you have 0 installed extension!")
+        if no_update:
+            print("---")
+            print("All Extensions is UP-TO-DATE!")
+
     def __need_upgrade(self, path, version):
         with open(path, "r") as f:
             return f.read() != version
@@ -196,14 +223,24 @@ class Extension(object):
             elif argv[1] == "list":
                 print("list installed extensions:\n---")
                 self.__list()
+            elif argv[1] == "update":
+                self.__update_check()
             else:
                 print("Usage: ext <command>")
                 print("---\nAvailable Command:")
-                print("install    : install extension.\nuninstall  : uninstall extension.\nupgrade    : upgrade extension.\nlist       : list installed extension.")
+                print("install    : install extension.")
+                print("uninstall  : uninstall extension.")
+                print("upgrade    : upgrade extension.")
+                print("update     : Check Available Extension update.")
+                print("list       : list installed extension.")
         except IndexError:
             print("Usage: ext <command>")
-            print("---\nAvailable Command:\n")
-            print("install    : install extension.\nuninstall  : uninstall extension.\nupgrade    : upgrade extension.\nlist       : list installed extension.")
+            print("---\nAvailable Command:")
+            print("install    : install extension.")
+            print("uninstall  : uninstall extension.")
+            print("upgrade    : upgrade extension.")
+            print("update     : Check Available Extension update.")
+            print("list       : list installed extension.")
 
     def run(self, wd, argv):
         exp = 'export EXT_DIR="%s"' % self.__path+argv[0]
@@ -215,7 +252,7 @@ class Extension(object):
 
 class QPyCMD(object):
     def __init__(self):
-        self.__version__ = "v2.0"
+        self.__version__ = "v2.1"
         self.last_output = ""
         self.__ext = Extension()
         self.process = Popen(
@@ -228,7 +265,6 @@ class QPyCMD(object):
         self.process.stdin.write('cd /sdcard/qpython/\n')
         self.process.stdin.flush()
         self.commander = {}
-        self.droid = sl4a.Android()
         self.normalizer = {}
 
     def get_bin(self):
@@ -285,7 +321,7 @@ class QPyCMD(object):
     def __update(self, cmd):
         if(self.__check_update()):
             print("updating..")
-            path = os.path.dirname(sys.argv[0]) + "/cmd.py"
+            path = os.path.abspath(os.path.dirname(sys.argv[0])) + "/cmd.py"
             rs = get_contents(
                 "https://raw.githubusercontent.com/guangrei/Qpy-CMD/main/cmd.py")
             if rs != False:
@@ -367,7 +403,9 @@ class QPyCMD(object):
         os._exit(0)
 
     def __input(self, cmd):
-        u = self.droid.dialogGetInput('Qpy CMD', "Input command:").result
+        import androidhelper
+        droid = androidhelper.Android()
+        u = droid.dialogGetInput('Qpy CMD', "Input command:").result
         if u is not None:
             print("[>]: " + u.strip())
             return self.__shell(u)
