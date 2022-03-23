@@ -150,20 +150,22 @@ class Extension(object):
         no_update = True
         for i in ls:
             with open(self.__path+i+"/.version", "r") as f:
-              local = f.read()
-            remote =  get_contents(pref+i+"/.version")
-            print("Checking %s ... "%i, end="")
+                local = f.read()
+            remote = get_contents(pref+i+"/.version")
+            print("Checking %s ... " % i, end="")
             if remote != False:
-              if local != remote:
-                  print("done!")
-                  print("---")
-                  print("Update {0} version {1} available!".format(i, remote))
-                  print("Please upgrade with command: ext upgrade {0}".format(i))
-                  print("---")
-                  no_update = False
-              else:
-                  print("done!")
-                  
+                if local != remote:
+                    print("done!")
+                    print("---")
+                    print(
+                        "Update {0} version {1} available!".format(i, remote))
+                    print(
+                        "Please upgrade with command: ext upgrade {0}".format(i))
+                    print("---")
+                    no_update = False
+                else:
+                    print("done!")
+
             else:
                 print("failed!")
         if len(ls) == 0:
@@ -268,8 +270,8 @@ class QPyCMD(object):
             self.process.stdin.write('cd /sdcard/qpython/\n')
             self.process.stdin.flush()
         else:
-        	self.process.stdin.write('cd $HOME\n')
-	        self.process.stdin.flush()
+            self.process.stdin.write('cd $HOME\n')
+            self.process.stdin.flush()
         self.commander = {}
         self.normalizer = {}
 
@@ -324,12 +326,13 @@ class QPyCMD(object):
             print("failed to checks update!")
             return False
 
-    def __update(self, cmd, upath = None):
+    def __update(self, cmd, upath=None):
         if(self.__check_update()):
             print("updating..")
             upath = os.getenv("QUPDATEPATH")
             if upath == None:
-	            upath = os.path.abspath(os.path.dirname(sys.argv[0])) + "/cmd.py"
+                upath = os.path.abspath(
+                    os.path.dirname(sys.argv[0])) + "/cmd.py"
             rs = get_contents(
                 "https://raw.githubusercontent.com/guangrei/Qpy-CMD/main/cmd.py")
             if rs != False:
@@ -425,7 +428,7 @@ class QPyCMD(object):
         if isinstance(cmd, str):
             self.__cmdIn(cmd, output=print_out)
 
-    def mainloop(self, cmd_name = "QPy CMD"):
+    def mainloop(self, cmd_name="QPy CMD"):
         print(
             'Welcome to  ' + cmd_name + ' ' +
             self.__version__ +
@@ -449,6 +452,7 @@ class QPyCMD(object):
                     self.__cmdIn(i)
             except KeyboardInterrupt:
                 print('please type "exit" for quit!')
+
 
 if __name__ == "__main__":
     q = QPyCMD()
