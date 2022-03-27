@@ -13,7 +13,7 @@ built-in commands:
 
 ## Installation
 
-for Qpython or Qpython3 user just download and run [cmd.py](https://raw.githubusercontent.com/guangrei/Qpy-CMD/main/qcmd/cmd.py).
+for Qpython or Qpython3 user just download and run [cmd.py](https://raw.githubusercontent.com/guangrei/Qpy-CMD/main/qpycmd/cmd.py).
 
 and for other, run:
 
