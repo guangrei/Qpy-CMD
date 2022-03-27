@@ -22,14 +22,37 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, call
 import time
 import sys
 import os
 import shlex
 import json
 import shutil
+from multiprocessing import Process
 
+__author__ = 'Guangrei <myawn@pm.me>'
+__license__ = 'MIT'
+__version__ = "v3.0"
+logo = """
+
+   ___  ___       ___ __  __ ___  
+  / _ \| _ \_  _ / __|  \/  |   \ 
+ | (_) |  _/ || | (__| |\/| | |) |
+  \__\_\_|  \_, |\___|_|  |_|___/ 
+            |__/                  
+
+"""
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 def get_contents(url):
     try:
@@ -57,6 +80,7 @@ class Extension(object):
         if not os.path.isdir(path):
             os.mkdir(path)
         self.__path = path
+        self.process_list = {}
         self.__py = sys.executable
         self.__meta = "https://raw.githubusercontent.com/guangrei/Qpy-EXT/main/meta.json"
 
@@ -150,22 +174,20 @@ class Extension(object):
         no_update = True
         for i in ls:
             with open(self.__path+i+"/.version", "r") as f:
-                local = f.read()
-            remote = get_contents(pref+i+"/.version")
-            print("Checking %s ... " % i, end="")
+              local = f.read()
+            remote =  get_contents(pref+i+"/.version")
+            print("Checking %s ... "%i, end="")
             if remote != False:
-                if local != remote:
-                    print("done!")
-                    print("---")
-                    print(
-                        "Update {0} version {1} available!".format(i, remote))
-                    print(
-                        "Please upgrade with command: ext upgrade {0}".format(i))
-                    print("---")
-                    no_update = False
-                else:
-                    print("done!")
-
+              if local != remote:
+                  print("done!")
+                  print("---")
+                  print("Update {0} version {1} available!".format(i, remote))
+                  print("Please upgrade with command: ext upgrade {0}".format(i))
+                  print("---")
+                  no_update = False
+              else:
+                  print("done!")
+                  
             else:
                 print("failed!")
         if len(ls) == 0:
@@ -247,16 +269,27 @@ class Extension(object):
             print("list       : list installed extension.")
 
     def run(self, wd, argv):
-        exp = 'export EXT_DIR="%s"' % self.__path+argv[0]
+        exp = os.environ.copy()
+        exp["EXT_DIR"] = self.__path+argv[0]
+        argv[0] = self.__path+argv[0]+"/main.py"
+        com = ["{0} {1}".format(self.__py, " ".join(argv))]
+        call(com, cwd=wd, env=exp, shell = True)
+
+    def bg_run(self, wd, argv):
+        cm = " ".join(argv)
+        exp = os.environ.copy()
+        exp["EXT_DIR"] = self.__path+argv[0]
         argv[0] = self.__path+argv[0]+"/main.py"
         com = "{0} {1}".format(self.__py, " ".join(argv))
-        f = "{0} && cd {1} && {2}".format(exp, wd, com)
-        os.system(f)
-
+        p = Popen(shlex.split(com), cwd=wd, env=exp)
+        print("pid: %d"%int(p.pid))
+        self.process_list[p.pid] = {}
+        self.process_list[p.pid]["program"] = cm
+        self.process_list[p.pid]["obj"] = p
 
 class QPyCMD(object):
     def __init__(self):
-        self.__version__ = "v2.2"
+        self.__version__ = __version__
         self.last_output = ""
         self.__ext = Extension()
         self.process = Popen(
@@ -270,8 +303,8 @@ class QPyCMD(object):
             self.process.stdin.write('cd /sdcard/qpython/\n')
             self.process.stdin.flush()
         else:
-            self.process.stdin.write('cd $HOME\n')
-            self.process.stdin.flush()
+        	self.process.stdin.write('cd $HOME\n')
+	        self.process.stdin.flush()
         self.commander = {}
         self.normalizer = {}
 
@@ -326,21 +359,20 @@ class QPyCMD(object):
             print("failed to checks update!")
             return False
 
-    def __update(self, cmd, upath=None):
+    def __update(self, cmd, upath = None):
         if(self.__check_update()):
             print("updating..")
             upath = os.getenv("QUPDATEPATH")
             if upath == None:
-                upath = os.path.abspath(
-                    os.path.dirname(sys.argv[0])) + "/cmd.py"
+	            upath = os.path.abspath(os.path.dirname(sys.argv[0])) + "/cmd.py"
             rs = get_contents(
-                "https://raw.githubusercontent.com/guangrei/Qpy-CMD/main/cmd.py")
+                "https://raw.githubusercontent.com/guangrei/Qpy-CMD/main/qcmd/cmd.py")
             if rs != False:
                 import requests
                 with open(upath, "w") as f:
                     f.write(rs)
                     f.close()
-                    print("update completed! please re-run " + sys.argv[0])
+                    print("update completed! please re-run " + upath)
             else:
                 print("update failed!")
         return False
@@ -363,10 +395,9 @@ class QPyCMD(object):
             if cmd[0] in self.normalizer:
                 com = self.normalizer[cmd[0]](cmd)
             else:
-                com = txcmd
-            fc = "cd {dir} && {com}".format(dir=self.last_output, com=com)
+                com = [txcmd]
             if os.path.isdir(self.last_output):
-                os.system(fc)
+                call(com, cwd=self.last_output, shell = True)
             else:
                 return False
 
@@ -399,6 +430,46 @@ class QPyCMD(object):
         com[0] = sys.executable + " -m pip"
         return " ".join(com)
 
+    def __nohup(self, com):
+        del com[0]
+        if len(com) == 0:
+            print("Usage:\n------")
+            print("- nohup [ext-name] [args: optional]")
+            print("- nohup kill [pid]")
+            print("- nohup list")
+        else:
+            if self.__ext.is_exists(com[0]):
+                self.__cmdIn('pwd', output=False)
+                if os.path.isdir(self.last_output):
+                    self.__ext.bg_run(self.last_output, com)
+            elif com[0] == "list":
+                print("-"*24)
+                print("|No  | pid   | program |")
+                print("-"*24)
+                n = 1
+                for k,v in self.__ext.process_list.items():
+                    print(" {0}.    {1}   {2}".format(n, k, v["program"]))
+                    n = n+1
+            elif com[0] == "kill":
+                if len(com) == 2:
+                    pd = int(com[1])
+                    if pd in self.__ext.process_list:
+                        p = self.__ext.process_list[pd]["obj"]
+                        if p.poll() is None:
+                           p.kill()
+                           del self.__ext.process_list[pd]
+                           print("success!")
+                        else:
+                           del self.__ext.process_list[pd]
+                           print("* success!")
+                    else:
+                       print("no process with pid: %d!"%pd)
+                else:
+                    print("Usage: nohup kill [pid]")                     
+            else:
+                print("ext %s isn't installed!"%com[0])
+                
+            
     def __cd(self, argv):
         return " ".join(argv)
 
@@ -428,11 +499,12 @@ class QPyCMD(object):
         if isinstance(cmd, str):
             self.__cmdIn(cmd, output=print_out)
 
-    def mainloop(self, cmd_name="QPy CMD"):
-        print(
+    def mainloop(self, cmd_name = "QPyCMD"):
+        print(bcolors.HEADER+logo+bcolors.ENDC)
+        print(bcolors.OKGREEN+
             'Welcome to  ' + cmd_name + ' ' +
             self.__version__ +
-            ' by guangrei, type "exit" to close this program and "?" for help!')
+            ' by guangrei, type "exit" to close this program and "?" for help!'+bcolors.ENDC)
         self.set_command("update", self.__update)
         self.set_normalizer("python", self.__python)
         self.set_normalizer("pip", self.__pip)
@@ -444,6 +516,7 @@ class QPyCMD(object):
         self.set_normalizer("easy_install", self.__easy_install)
         self.set_command("?", self.__help)
         self.set_command("cd", self.__cd)
+        self.set_command("nohup", self.__nohup)
         while True:
             try:
                 i = input("[>]: ")
@@ -452,7 +525,6 @@ class QPyCMD(object):
                     self.__cmdIn(i)
             except KeyboardInterrupt:
                 print('please type "exit" for quit!')
-
 
 if __name__ == "__main__":
     q = QPyCMD()
