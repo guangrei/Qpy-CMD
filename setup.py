@@ -8,10 +8,10 @@ except ImportError:
 
 setup(
     name='qpycmd',
-    version="v2.2",
-    description='terminal brigade between python mobile.',
+    version="v3.0",
+    description='terminal for python mobile.',
     long_description="",
-    author="guangrei",    author_email='myawn{[AT]}pm.me',
+    author="guangrei",    author_email='myawn@pm.me',
     packages=['qpycmd'],
     scripts=['qcmd'],
     license='MIT',

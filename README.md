@@ -1,19 +1,27 @@
-Qpy CMD is terminal helper for qpython user to run terminal operation like:
-- execute python script directly (e.g:  `python path/to/script.py arg1 arg2` )
-- run  `pip` command.
-- run installed package binary ( `pycodestyle` ,  `autopep8` ,  `mypy`  etc)
-- run basic command ( `ls` ,  `mkdir` ,  `cd`  etc)
-- auto  `cd`  to  `/sdcard/qpython` when launched.
+QpyCMD is terminal emulator written in python and designed for python mobile (Qpython, Qpython3, pydroid, pydroid3, termux etc).
 
 built-in commands:
- -  `x`                         :  prompt gui input.
+ -  `x`                         :  prompt gui input (require sl4a).
  -  `?`                         :  show help.
  -  `exit`                     :  terminate program.
  -  `update`               :  self-update program.
  -  `ext`                      :  extension command.
  -  `dump_path`        : dump all available executable.
+  - `nohup` - run extension program in background.
 
 ![Screenshot](screenshot.jpg)
+
+## Installation
+
+for Qpython and Qpython3 user just download and run [cmd.py](https://raw.githubusercontent.com/guangrei/QpyCMD/main/qcmd/cmd.py).
+
+and for other, run:
+
+```
+pip install https://github.com/guangrei/QpyCMD/archive/main.zip
+```
+
+then type `qcmd`.
 
 ## Extension
 
