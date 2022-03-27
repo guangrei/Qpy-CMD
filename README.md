@@ -9,7 +9,7 @@ built-in commands:
  -  `dump_path`        : dump all available executable.
   - `nohup` - run extension program in background.
 
-![Screenshot](screenshot.jpg)
+![Screenshot](screenshot.png)
 
 ## Installation
 
