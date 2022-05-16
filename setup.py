@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys
+from qpycmd.climate import Qpyutil
 try:
     from setuptools import setup
 except ImportError:
@@ -8,7 +9,7 @@ except ImportError:
 
 setup(
     name='qpycmd',
-    version="v3.0",
+    version="v4.0",
     description='terminal for python mobile.',
     long_description="",
     author="guangrei",    author_email='myawn@pm.me',
@@ -17,3 +18,6 @@ setup(
     license='MIT',
     platforms='any',
 )
+
+if Qpyutil.is_qpy():
+    Qpyutil.update_terminal()

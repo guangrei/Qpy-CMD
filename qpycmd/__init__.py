@@ -1,1 +1,3 @@
-from .cmd import *
+__author__ = 'Guangrei <myawn@pm.me>'
+__license__ = 'MIT'
+__version__ = "v4.0"
