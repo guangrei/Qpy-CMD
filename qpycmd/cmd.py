@@ -84,8 +84,10 @@ class QPyCMD(object):
         print("-"*len("CAUTION!!"))
         print(
             "\n"+Styled.ansicode["bold"]+"* some executable may not compatible in QpyCMD, so you can run it in sh."+Styled.ansiclose)
-        print(Styled.ansicode["bold"]+"** some executable may need root permission"+Styled.ansiclose)
-        print(Styled.ansicode["bold"]+"*** some executable could make your device crashed, so make sure you know what you do!"+Styled.ansiclose)
+        print(Styled.ansicode["bold"] +
+              "** some executable may need root permission"+Styled.ansiclose)
+        print(Styled.ansicode["bold"] +
+              "*** some executable could make your device crashed, so make sure you know what you do!"+Styled.ansiclose)
 
     def set_normalizer(self, fun_name, fun):
         if callable(fun):
@@ -104,24 +106,26 @@ class QPyCMD(object):
         rs = get_contents(
             "https://raw.githubusercontent.com/guangrei/QPy-CMD/main/setup.py")
         if rs != False:
-            search = re.search('version="(.*)"',rs)
+            search = re.search('version="(.*)"', rs)
             if search.group(1).strip() != self.__version__:
                 return True
             else:
                 print("you already use version " + search.group(1))
                 return False
         else:
-            print(Styled.ansicode["fail"]+"failed to checks update!"+Styled.ansiclose)
+            print(Styled.ansicode["fail"] +
+                  "failed to checks update!"+Styled.ansiclose)
             return False
 
-    def __update(self, cmd, upath = None):
+    def __update(self, cmd, upath=None):
         if(self.__check_update()):
             print("updating..")
-            self.__shell("pip install https://github.com/guangrei/Qpy-CMD/archive/main.zip --upgrade")
+            self.__shell(
+                "pip install https://github.com/guangrei/Qpy-CMD/archive/main.zip --upgrade")
 
     def __shell(self, txcmd):
         cmd = shlex.split(txcmd)
-        if txcmd.strip() == "" or txcmd in [".","..","qcmd"]:
+        if txcmd.strip() == "" or txcmd in [".", "..", "qcmd"]:
             return False
         elif ("&&" in cmd):
             for i in txcmd.split("&&"):
@@ -139,7 +143,7 @@ class QPyCMD(object):
             else:
                 com = [txcmd]
             if os.path.isdir(self.last_output):
-                call(com, cwd=self.last_output, shell = True)
+                call(com, cwd=self.last_output, shell=True)
             else:
                 return False
 
@@ -156,7 +160,8 @@ class QPyCMD(object):
                     reg = "<stdin>\[\d\]\:\s"
                     outp = out.strip()
                     if re.search(reg, outp):
-                        print(Styled.ansicode['fail']+re.sub(reg, "", outp)+Styled.ansiclose)
+                        print(Styled.ansicode['fail'] +
+                              re.sub(reg, "", outp)+Styled.ansiclose)
                     else:
                         print(outp)
                 else:
@@ -197,7 +202,7 @@ class QPyCMD(object):
                 print("|No  | pid   | program |")
                 print("-"*24)
                 n = 1
-                for k,v in self.__ext.process_list.items():
+                for k, v in self.__ext.process_list.items():
                     print(" {0}.    {1}   {2}".format(n, k, v["program"]))
                     n = n+1
             elif com[0] == "kill":
@@ -206,20 +211,19 @@ class QPyCMD(object):
                     if pd in self.__ext.process_list:
                         p = self.__ext.process_list[pd]["obj"]
                         if p.poll() is None:
-                           p.kill()
-                           del self.__ext.process_list[pd]
-                           print("success!")
+                            p.kill()
+                            del self.__ext.process_list[pd]
+                            print("success!")
                         else:
-                           del self.__ext.process_list[pd]
-                           print("* success!")
+                            del self.__ext.process_list[pd]
+                            print("* success!")
                     else:
-                       print("no process with pid: %d!"%pd)
+                        print("no process with pid: %d!" % pd)
                 else:
-                    print("Usage: nohup kill [pid]")                     
+                    print("Usage: nohup kill [pid]")
             else:
-                print("ext %s isn't installed!"%com[0])
-                
-            
+                print("ext %s isn't installed!" % com[0])
+
     def __cd(self, argv):
         return " ".join(argv)
 
@@ -249,13 +253,13 @@ class QPyCMD(object):
         if isinstance(cmd, str):
             self.__cmdIn(cmd, output=print_out)
 
-    def mainloop(self, cmd_name = "QPyCMD"):
+    def mainloop(self, cmd_name="QPyCMD"):
         pr = Styled(logo)
         pr = pr.header.out()
         print(pr)
         pr = Styled('Welcome to  ' + cmd_name + ' ' +
-            self.__version__ +
-            ' by guangrei, type "exit" to close this program and "?" for help!')
+                    self.__version__ +
+                    ' by guangrei, type "exit" to close this program and "?" for help!')
         print(pr.okgreen.bold.out())
         self.set_command("update", self.__update)
         self.set_normalizer("python", self.__python)
@@ -275,6 +279,7 @@ class QPyCMD(object):
             i = self.__shell(i)
             if isinstance(i, str):
                 self.__cmdIn(i)
+
 
 if __name__ == "__main__":
     pass

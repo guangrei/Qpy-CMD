@@ -69,32 +69,36 @@ else
 fi
 """
 
+
 class Styled(object):
-    
-    ansicode = {'okblue': '\x1b[94m', 'okgreen': '\x1b[92m', 'bold': '\x1b[1m', 'header': '\x1b[95m',  'warning': '\x1b[93m', 'okcyan': '\x1b[96m', 'fail': '\x1b[91m', 'underline': '\x1b[4m'}
+
+    ansicode = {'okblue': '\x1b[94m', 'okgreen': '\x1b[92m', 'bold': '\x1b[1m', 'header': '\x1b[95m',
+                'warning': '\x1b[93m', 'okcyan': '\x1b[96m', 'fail': '\x1b[91m', 'underline': '\x1b[4m'}
     ansiclose = '\x1b[0m'
-    
-    def __init__(self,text):
-        self.text = str(text);
+
+    def __init__(self, text):
+        self.text = str(text)
         self.ls = []
-        
+
     def out(self):
         ret = self.text
         for i in self.ls:
-            ret = "{0}{1}{2}".format(self.ansicode[i],ret, self.ansiclose)
+            ret = "{0}{1}{2}".format(self.ansicode[i], ret, self.ansiclose)
         return ret
+
     def __str__(self):
         ret = self.text
         for i in self.ls:
-            ret = "{0}{1}{2}".format(self.ansicode[i],ret, self.ansiclose)
+            ret = "{0}{1}{2}".format(self.ansicode[i], ret, self.ansiclose)
         return ret
-    
+
     def __getattr__(self, name):
         if name in self.ansicode:
             self.ls.append(name)
         return self
 
-def get_contents(url,encoding="utf-8", device="pc"):
+
+def get_contents(url, encoding="utf-8", device="pc"):
     ua_mobile = "Mozilla/5.0 (Linux; Android 12; SM-A525F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.61 Mobile Safari/537.36"
     ua_pc = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36"
     if device == "mobile":
@@ -117,7 +121,7 @@ def get_contents(url,encoding="utf-8", device="pc"):
             import requests
             headers = requests.utils.default_headers()
             headers.update({'User-Agent': UA})
-            
+
             response = requests.get(url, headers=headers)
             if encoding is not None:
                 return response.text
@@ -126,11 +130,12 @@ def get_contents(url,encoding="utf-8", device="pc"):
         except:
             return False
 
+
 class Qpyutil(object):
-    
+
     def is_qpy():
         return os.getenv("IS_QPY3") is not None
-        
+
     def is_old_qpy():
         if Qpyutil.is_qpy():
             file = os.getenv("PYTHONHOME")+"/bin/qpython.sh"
@@ -140,27 +145,29 @@ class Qpyutil(object):
             return not test
         else:
             raise ValueError
-        
+
     def qpy_version():
         if Qpyutil.is_qpy():
-            return [2,3][int(os.getenv("IS_QPY3")) == 1]
+            return [2, 3][int(os.getenv("IS_QPY3")) == 1]
         else:
             raise ValueError
-            
+
     def update_terminal():
         if Qpyutil.is_old_qpy:
-           file = os.getenv("PYTHONHOME")+"/bin/qpython.sh"
-           print("updating",file,"..")
-           with open(file, "w") as f:
-               f.write(shtemp_old)
-           print("sucess updating",file)
-           os.system("chmod 755 {}".format(file))
-           os.system("chmod 755 {}".format(os.getenv("PYTHONHOME")+"/bin/qcmd"))
+            file = os.getenv("PYTHONHOME")+"/bin/qpython.sh"
+            print("updating", file, "..")
+            with open(file, "w") as f:
+                f.write(shtemp_old)
+            print("sucess updating", file)
+            os.system("chmod 755 {}".format(file))
+            os.system("chmod 755 {}".format(
+                os.getenv("PYTHONHOME")+"/bin/qcmd"))
         else:
-           file = os.getenv("PYTHONHOME")+"/bin/qpython3-android5.sh" 
-           print("updating",file,"..")
-           with open(file, "w") as f:
-               f.write(shtemp_old)
-           print("sucess updating",file)
-           os.system("chmod 755 {}".format(file))
-           os.system("chmod 755 {}".format(os.getenv("PYTHONHOME")+"/bin/qcmd"))
+            file = os.getenv("PYTHONHOME")+"/bin/qpython3-android5.sh"
+            print("updating", file, "..")
+            with open(file, "w") as f:
+                f.write(shtemp_old)
+            print("sucess updating", file)
+            os.system("chmod 755 {}".format(file))
+            os.system("chmod 755 {}".format(
+                os.getenv("PYTHONHOME")+"/bin/qcmd"))

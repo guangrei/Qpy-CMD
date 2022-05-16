@@ -28,6 +28,7 @@ import sys
 from .climate import get_contents, Styled
 import shlex
 
+
 class Extension(object):
     def __init__(self):
         path = os.getenv("QEXTPATH")
@@ -130,20 +131,22 @@ class Extension(object):
         no_update = True
         for i in ls:
             with open(self.__path+i+"/.version", "r") as f:
-              local = f.read()
-            remote =  get_contents(pref+i+"/.version")
-            print("Checking %s ... "%i, end="")
+                local = f.read()
+            remote = get_contents(pref+i+"/.version")
+            print("Checking %s ... " % i, end="")
             if remote != False:
-              if local != remote:
-                  print("done!")
-                  print("---")
-                  print("Update {0} version {1} available!".format(i, remote))
-                  print("Please upgrade with command: ext upgrade {0}".format(i))
-                  print("---")
-                  no_update = False
-              else:
-                  print("done!")
-                  
+                if local != remote:
+                    print("done!")
+                    print("---")
+                    print(
+                        "Update {0} version {1} available!".format(i, remote))
+                    print(
+                        "Please upgrade with command: ext upgrade {0}".format(i))
+                    print("---")
+                    no_update = False
+                else:
+                    print("done!")
+
             else:
                 print("failed!")
         if len(ls) == 0:
@@ -187,7 +190,8 @@ class Extension(object):
 
     def CMD(self, argv):
         if len(argv) >= 2:
-            alias = {"rm":"uninstall", "i":"install", "ls":"list", "U": "upgrade", "up": "update"}
+            alias = {"rm": "uninstall", "i": "install",
+                     "ls": "list", "U": "upgrade", "up": "update"}
             if argv[1] in alias:
                 argv[1] = alias[argv[1]]
         try:
@@ -242,7 +246,7 @@ class Extension(object):
         argv[0] = self.__path+argv[0]+"/main.py"
         com = "{0} {1}".format(self.__py, " ".join(argv))
         p = Popen(shlex.split(com), cwd=wd, env=exp)
-        print("pid: %d"%int(p.pid))
+        print("pid: %d" % int(p.pid))
         self.process_list[p.pid] = {}
         self.process_list[p.pid]["program"] = cm
         self.process_list[p.pid]["obj"] = p
