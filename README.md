@@ -13,10 +13,11 @@ built-in commands:
 
 ## Installation
 
+Run pip installation with command:
 ```
 pip install https://github.com/guangrei/Qpy-CMD/archive/main.zip
 ```
-in qpython3 open terminal and for other type `qcmd`.
+then in qpython open terminal and for other type `qcmd`.
 
 ## Extension
 
