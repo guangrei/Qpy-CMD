@@ -28,6 +28,7 @@ import sys
 from .climate import get_contents, Styled
 import shlex
 import json
+import shutil
 
 
 class Extension(object):
