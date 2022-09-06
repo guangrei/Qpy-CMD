@@ -1,4 +1,4 @@
-QpyCMD is terminal emulator written in python and designed for python 3 mobile (Qpython3, pydroid3, termux etc).
+QpyCMD is terminal emulator written in python and designed for python3 mobile.
 
 built-in commands:
  -  `x`                         :  prompt gui input (require sl4a).
@@ -15,9 +15,14 @@ built-in commands:
 
 Run pip installation with command:
 ```
-pip install https://github.com/guangrei/Qpy-CMD/archive/main.zip
+pip3 install https://github.com/guangrei/Qpy-CMD/archive/main.zip
 ```
-then in qpython open terminal and for other type `qcmd`.
+then in qpython open terminal, if terminal not changed to qpycmd create project named `QpyCMD` and add this code into `main.py`:
+
+```python
+import os
+os.system("qcmd")
+```
 
 ## Extension
 

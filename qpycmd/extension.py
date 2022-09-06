@@ -27,6 +27,7 @@ import os
 import sys
 from .climate import get_contents, Styled
 import shlex
+import json
 
 
 class Extension(object):
