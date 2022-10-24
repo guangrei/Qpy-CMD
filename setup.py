@@ -9,7 +9,7 @@ except ImportError:
 
 setup(
     name='qpycmd',
-    version="v4.1.1",
+    version="v4.1.2",
     description='terminal for python mobile.',
     long_description="",
     author="guangrei",    author_email='myawn@pm.me',

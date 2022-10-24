@@ -20,7 +20,9 @@ pip3 install https://github.com/guangrei/Qpy-CMD/archive/main.zip
 then in qpython open terminal, if terminal not changed to qpycmd create project named `QpyCMD` and add this code into `main.py`:
 
 ```python
+# -*-coding:utf8;-*-
 import os
+
 os.system("qcmd")
 ```
 
