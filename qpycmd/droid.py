@@ -152,8 +152,10 @@ def view(p):
     import mimetypes
     return native.view('file://'+p, mimetypes.guess_type(p)[0])
 
+
 def browser(url):
-	return native.view(url)
+    return native.view(url)
+
 
 def audio_record(path, times=5):
     import time
@@ -198,9 +200,11 @@ def speaking(word):
         pass
     sprogress_hide()
 
+
 def pick(mime='*/*'):
-	p = native.startActivityForResult('android.intent.action.GET_CONTENT', None, mime, None)
-	if p.result:
-		return p.result['data']
-	else:
-		return False
+    p = native.startActivityForResult(
+        'android.intent.action.GET_CONTENT', None, mime, None)
+    if p.result:
+        return p.result['data']
+    else:
+        return False
