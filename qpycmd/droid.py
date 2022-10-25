@@ -150,8 +150,10 @@ def camera(path, mode="picture"):
 
 def view(p):
     import mimetypes
-    return native.view(p, mimetypes.guess_type(p)[0])
+    return native.view('file://'+p, mimetypes.guess_type(p)[0])
 
+def browser(url):
+	return native.view(url)
 
 def audio_record(path, times=5):
     import time
@@ -175,7 +177,7 @@ def edit(uri):
     import mimetypes
 
     r = native.startActivityForResult(
-        'android.intent.action.EDIT', uri, mimetypes.guess_type(uri)[0])
+        'android.intent.action.EDIT', 'file://'+uri, mimetypes.guess_type(uri)[0])
     return r
 
 
@@ -195,3 +197,10 @@ def speaking(word):
     while native.ttsIsSpeaking().result:
         pass
     sprogress_hide()
+
+def pick(mime='*/*'):
+	p = native.startActivityForResult('android.intent.action.GET_CONTENT', None, mime, None)
+	if p.result:
+		return p.result['data']
+	else:
+		return False
