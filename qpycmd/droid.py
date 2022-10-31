@@ -207,6 +207,8 @@ def pick(mime='*/*'):
     p = native.startActivityForResult(
         'android.intent.action.GET_CONTENT', None, mime, None)
     if p.result:
-        return p.result['data']
+        ur = p.result['data']
+        parse = native.queryContent(ur)
+        return parse.result[0]
     else:
         return False
