@@ -176,13 +176,15 @@ def video_record(path, times=5):
 
 
 def edit(uri, mime='guess'):
-	if mime == 'guess':
-		import mimetypes
-	
-		r = native.startActivityForResult('android.intent.action.EDIT', 'file://'+uri, mimetypes.guess_type(uri)[0])
-	else:
-		r = native.startActivityForResult('android.intent.action.EDIT', 'file://'+uri, mime)
-	return r
+    if mime == 'guess':
+        import mimetypes
+
+        r = native.startActivityForResult(
+            'android.intent.action.EDIT', 'file://'+uri, mimetypes.guess_type(uri)[0])
+    else:
+        r = native.startActivityForResult(
+            'android.intent.action.EDIT', 'file://'+uri, mime)
+    return r
 
 
 def listen(msg="please speak now!", lang="en-Us", model=None):
