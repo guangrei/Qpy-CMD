@@ -179,11 +179,11 @@ def edit(uri, mime='guess'):
     if mime == 'guess':
         import mimetypes
 
-        r = native.startActivityForResult(
-            'android.intent.action.EDIT', 'file://'+uri, mimetypes.guess_type(uri)[0])
+        r = native.startActivity(
+            'android.intent.action.EDIT', 'file://'+uri, mimetypes.guess_type(uri)[0], wait=True)
     else:
-        r = native.startActivityForResult(
-            'android.intent.action.EDIT', 'file://'+uri, mime)
+        r = native.startActivity(
+            'android.intent.action.EDIT', 'file://'+uri, mime, wait=True)
     return r
 
 
@@ -198,11 +198,12 @@ def listen(msg="please speak now!", lang="en-Us", model=None):
 
 
 def speaking(word):
-    native.ttsSpeak(word)
-    sprogress_show("Speaking", word)
-    while native.ttsIsSpeaking().result:
-        pass
-    sprogress_hide()
+	import time
+	native.ttsSpeak(word)
+	sprogress_show("Speaking", word)
+	while native.ttsIsSpeaking().result:
+		time.sleep(1)
+	sprogress_hide()
 
 
 def pick(mime='*/*'):
