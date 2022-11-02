@@ -198,12 +198,12 @@ def listen(msg="please speak now!", lang="en-Us", model=None):
 
 
 def speaking(word):
-	import time
-	native.ttsSpeak(word)
-	sprogress_show("Speaking", word)
-	while native.ttsIsSpeaking().result:
-		time.sleep(1)
-	sprogress_hide()
+    import time
+    native.ttsSpeak(word)
+    sprogress_show("Speaking", word)
+    while native.ttsIsSpeaking().result:
+        time.sleep(1)
+    sprogress_hide()
 
 
 def pick(mime='*/*'):
